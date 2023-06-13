@@ -22,4 +22,6 @@ public interface Constants {
     String CODE_498 = "498";    // 权限不足
     String CODE_499 = "499";    // token认证失败
     String CODE_500 = "500";    //服务器内部错误
+
+    String CODE_10001 = "10001"; //怎么想都不一样吧
 }

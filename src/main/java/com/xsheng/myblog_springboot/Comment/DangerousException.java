@@ -17,12 +17,13 @@ public class DangerousException extends RuntimeException {
     private String code;
 
 
-    private Integer userId;
+    private Integer id;
 
-    public DangerousException(String code, String message, Integer userId) {
+
+    public DangerousException(String code, String message, Integer id) {
         super(message);
         this.code = code;
-        this.userId = userId;
+        this.id = id;
     }
 
 //    public DangerousException(String code, String message, HttpServletRequest request, Integer userId) {
