@@ -1,8 +1,11 @@
 package com.xsheng.myblog_springboot.Comment;
 
+import cn.hutool.core.lang.Dict;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Collection;
 
 /**
  * 结果集
@@ -38,6 +41,17 @@ public class Result {
     // 不需要返回状态
     public static Result error() {
         return new Result(Constants.CODE_500, "系统错误", null);
+    }
+    /**
+     * 分页
+     *
+     * @param list  数据
+     * @param total 总数
+     * @return 成功
+     */
+    @SuppressWarnings("rawtypes")
+    public static Result success(Collection list, Long total) {
+        return success(Dict.create().set("list", list).set("total", total));
     }
 }
 

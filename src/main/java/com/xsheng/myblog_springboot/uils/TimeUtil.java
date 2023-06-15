@@ -20,6 +20,10 @@ public class TimeUtil {
         return LocalDateTime.now();
     }
 
+    public static Long ns(){
+        return System.nanoTime();
+    }
+
     // 精确到天 - 获取当前时间
     public static LocalDate nowDay() {
         return LocalDate.now();
