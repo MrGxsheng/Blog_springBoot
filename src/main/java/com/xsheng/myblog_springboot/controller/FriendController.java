@@ -66,8 +66,27 @@ public class FriendController {
 
     @DeleteMapping("/delete")
     public Result deleteFriend(@RequestParam Integer userId,
-                               @RequestParam String name) {
-        Friend friend = friendService.lambdaQuery().eq(Friend::getUserId, userId).eq(Friend::getName, name).one();
+                               @RequestParam Integer friendId) {
+        Friend friend = friendService.lambdaQuery().eq(Friend::getUserId, userId).eq(Friend::getId, friendId).one();
         return Result.success(friendService.removeById(friend));
+    }
+
+    @PutMapping("/update")
+    public Result update(@RequestParam Integer friendId,
+                         @RequestParam String name,
+                         @RequestParam Integer userId,
+                         @RequestParam String description,
+                         @RequestParam String url,
+                         @RequestParam(required = false) MultipartFile avatar){
+        Friend build = null;
+        if(avatar != null){
+            String avaUrl = OssUtil.upload(avatar);
+            build = Friend.builder().id(friendId.longValue()).name(name).userId(userId).description(description).url(url).avatar(avaUrl).build();
+
+        }else{
+            build = Friend.builder().id(friendId.longValue()).name(name).userId(userId).description(description).url(url).build();
+        }
+        friendService.updateById(build);
+        return Result.success();
     }
 }
