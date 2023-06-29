@@ -19,7 +19,7 @@ import java.util.Collections;
 public class Generator {
 
     // 表名
-    public static final String TABLE_NAME = "friend";
+    public static final String TABLE_NAME = "file";
     // 作者
     public static final String AUTHOR = "xsheng";
     //Mapper 路径

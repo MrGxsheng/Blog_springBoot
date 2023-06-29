@@ -4,3 +4,18 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 1234
+
+  mvc:
+    static-path-pattern: ${my.file-config.staticPath}** # 静态资源访问
+  web:
+    resources:
+      static-locations: file:${my.file-config.uploadPath}
+my:
+  server: # 上传到服务器需要改这个
+    name: https://sdadgz.cn
+    uploadPath: '/usr/local/springboot/static/' # 文件下载到哪里，记得屁股加个杠
+    localhostIp: '85.230.0.1'
+  file-config:
+    uploadPath: '${my.server.uploadPath}'
+    staticPath: '/static/' # 访问前缀，不是物理地址
+    downloadPath: '${my.file-config.staticPath}' # 存url到数据库时用的

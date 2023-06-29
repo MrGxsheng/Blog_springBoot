@@ -28,6 +28,12 @@ public class UserController {
     private final IUserService userService;
 
     //登录
+    @GetMapping("/test")
+    public Result test(){
+        return Result.success();
+    }
+
+    //登录
     @PostMapping("/login")
     public Result login(@RequestBody User user){
         return Result.success(loginR(user));
