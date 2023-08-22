@@ -12,6 +12,7 @@ import com.xsheng.myblog_springboot.uils.NoteUtil;
 import com.xsheng.myblog_springboot.uils.TimeUtil;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,22 +33,24 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/note")
 @RequiredArgsConstructor
+@Slf4j
 public class NoteController {
     private final INoteService noteService;
     private final INoteTypeService noteTypeService;
 
     @PostMapping("/upload/{type}/{userId}")
-    public Result addNote(@RequestPart("file") MultipartFile file,
+    public Result addNote(@RequestPart("file") MultipartFile[] file,
                           @PathVariable("type") String type,
                           @PathVariable("userId") int userId) throws IOException {
 
-        String originalFilename = file.getOriginalFilename();
+
+        String originalFilename = file[0].getOriginalFilename();
         assert originalFilename != null;
 
         String title = originalFilename.substring(0, originalFilename.lastIndexOf("."));
         int typeId = noteTypeService.getTypeId(type);
 
-        File fz = FileUtil.convertMultipartFileToFile(file);
+        File fz = FileUtil.convertMultipartFileToFile(file[0]);
         String text = FileUtil.convertMarkdownFileToString(fz);
 
         Note note = Note.builder().noteName(title).noteText(text).userId(userId).typeId(typeId).build();
@@ -67,7 +70,6 @@ public class NoteController {
     public void updateNote(Note note) {
         if (!noteService.noteTextExists(note)) {
             note.setUpdateTime(TimeUtil.now());
-
             noteService.updateById(note);
         }
     }
