@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author xsheng
@@ -31,7 +31,7 @@ public class ImageController {
 
     @PostMapping("/upload/{userId}")
     public Result addImg(@RequestPart("file") MultipartFile file,
-                         @PathVariable("userId") Integer userId){
+                         @PathVariable("userId") Integer userId) {
         String upload = OssUtil.upload(file);
         Image builder = Image.builder().imgName(file.getOriginalFilename()).imgPath(upload).userId(userId).uploadTime(TimeUtil.now()).build();
         imageService.save(builder);
@@ -39,12 +39,11 @@ public class ImageController {
     }
 
     @GetMapping("/allImg")
-    public Result allImg(@RequestParam Integer userId){
+    public Result allImg(@RequestParam Integer userId) {
         List<Image> list = imageService.lambdaQuery().eq(Image::getUserId, userId).list();
         int count = list.size();
-        return Result.success(list,Integer.toUnsignedLong(count));
+        return Result.success(list, Integer.toUnsignedLong(count));
     }
-
 
 
 }
