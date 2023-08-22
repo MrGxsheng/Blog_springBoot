@@ -27,7 +27,7 @@ import java.util.Map;
 public class UserController {
     private final IUserService userService;
 
-    //登录
+    //测试
     @GetMapping("/test")
     public Result test(){
         return Result.success();
