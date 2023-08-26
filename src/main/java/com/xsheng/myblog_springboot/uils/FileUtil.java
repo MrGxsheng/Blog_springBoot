@@ -110,7 +110,7 @@ public class FileUtil {
         // 上传
         String url = fileUtil.downloadPath + file.getOriginalFilename();
         String path = fileUtil.uploadPath + file.getOriginalFilename();
-//        uploadToServer(file, path);
+        uploadToServer(file, path);
 
         map.put("downloadPath", url);
         map.put("uploadPath", path);
