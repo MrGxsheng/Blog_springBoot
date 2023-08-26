@@ -1,15 +1,16 @@
 package com.xsheng.myblog_springboot.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.sun.org.apache.regexp.internal.RE;
 import com.xsheng.myblog_springboot.Comment.Result;
 import com.xsheng.myblog_springboot.entity.User;
 import com.xsheng.myblog_springboot.service.IUserService;
+import com.xsheng.myblog_springboot.uils.JwtUtil;
 import com.xsheng.myblog_springboot.uils.TimeUtil;
 import com.xsheng.myblog_springboot.uils.UserUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class UserController {
 
     //登录
     @PostMapping("/login")
-    public Result login(@RequestBody User user){
+    public Result login(@RequestBody User user) throws NoSuchAlgorithmException {
         return Result.success(loginR(user));
     }
 
@@ -48,12 +49,12 @@ public class UserController {
 
     //注册
     @PostMapping("/reg")
-    public Result register(@RequestBody User user){
+    public Result register(@RequestBody User user) throws NoSuchAlgorithmException {
         user.setCreateTime(TimeUtil.now());
         String password = user.getPassword();
 
         //加密的时候再用
-//        user.setPassword(UserUtil.encryptPassword(password));
+        user.setPassword(UserUtil.encryptPassword(password));
         userService.save(user);
 
         return Result.success(loginR(user));
@@ -69,12 +70,15 @@ public class UserController {
     }
 
 
-    public Map<String,Object> loginR(User user){
+    private Map<String,Object> loginR(User user) throws NoSuchAlgorithmException {
         Map<String,Object> map = new HashMap<>();
         String account = user.getAccount();
         User userR = userService.getUserByAccount(account);
         UserUtil.verify(user,userR);
 
+        String token = JwtUtil.createToken(userR.getId().toString(),userR.getAccount(),userR.getPassword());
+
+        map.put("token",token);
         map.put("id",userR.getId());
         map.put("username",userR.getUsername());
         map.put("avatar",userR.getAvatar());

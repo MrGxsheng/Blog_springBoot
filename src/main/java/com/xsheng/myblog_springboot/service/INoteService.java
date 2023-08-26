@@ -18,10 +18,10 @@ import java.util.List;
  */
 public interface INoteService extends IService<Note> {
 
-    boolean noteExists(Note note);
+    boolean noteNameExists(Note note);
     List<Note> getAll(Integer id, String type);
     boolean noteTextExists(Note note);
-    Integer getNoteId(Note note);
+    Integer getNoteId(Note note,String name);
     void addNote(MultipartFile[] file, String type, Integer userId) throws IOException;
     void deleteNote(Integer id,String type);
 }

@@ -1,7 +1,6 @@
 package com.xsheng.myblog_springboot.service.impl;
 
 import cn.hutool.core.lang.Dict;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.xsheng.myblog_springboot.entity.Image;
 import com.xsheng.myblog_springboot.mapper.ImageMapper;
 import com.xsheng.myblog_springboot.service.IImageService;
@@ -19,7 +18,7 @@ import java.util.List;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author xsheng
@@ -32,12 +31,12 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
 
     @Resource
     private ImageMapper imageMapper;
-    private static final LambdaQueryWrapper<Image> IMAGE_LAMBDA_QUERY_WRAPPER = new LambdaQueryWrapper<>();
 
     /**
      * 添加图片
-     * @param file 图片
-     * @param userId  上传人的id
+     *
+     * @param file   图片
+     * @param userId 上传人的id
      */
     @Override
     @CacheEvict(allEntries = true)
@@ -45,22 +44,20 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         for (MultipartFile multipartFile : file) {
             String upload = OssUtil.upload(multipartFile);
             Image builder = Image.builder().imgName(multipartFile.getOriginalFilename()).imgPath(upload).userId(userId).uploadTime(TimeUtil.now()).build();
-            imageMapper.insert(builder);
+            this.save(builder);
         }
     }
 
     /**
      * 获取全部图片
+     *
      * @param userId 获取图片的用户的id
      * @return 返回全部图片及数量
      */
     @Override
     @Cacheable(key = "#userId")
     public Dict getAllImage(Integer userId) {
-
-        LambdaQueryWrapper<Image> queryWrapper = IMAGE_LAMBDA_QUERY_WRAPPER.eq(Image::getUserId, userId);
-        List<Image> images = imageMapper.selectList(queryWrapper);
-
-        return new Dict().set("list",images).set("count",images.size());
+        List<Image> images = this.lambdaQuery().eq(Image::getUserId, userId).list();
+        return new Dict().set("list", images).set("count", images.size());
     }
 }

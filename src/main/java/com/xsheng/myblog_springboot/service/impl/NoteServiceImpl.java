@@ -1,8 +1,6 @@
 package com.xsheng.myblog_springboot.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.xsheng.myblog_springboot.entity.Note;
 import com.xsheng.myblog_springboot.entity.NoteType;
 import com.xsheng.myblog_springboot.mapper.NoteMapper;
@@ -14,16 +12,17 @@ import com.xsheng.myblog_springboot.uils.TimeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+
 
 /**
  * <p>
@@ -46,46 +45,56 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
 
     @Resource
     private NoteTypeMapper noteTypeMapper;
-    private final static LambdaQueryWrapper<Note> NOTE_LAMBDA_QUERY_WRAPPER = new LambdaQueryWrapper<>();
-    private final static LambdaQueryWrapper<NoteType> NOTE_TYPE_LAMBDA_QUERY_WRAPPER = new LambdaQueryWrapper<>();
 
-    @Override
-    public boolean noteExists(Note note) {
-
-        log.info("1{}2{}", note.getUserId(), note.getNoteName());
-
-        NOTE_LAMBDA_QUERY_WRAPPER.eq(Note::getUserId, note.getUserId()).eq(Note::getNoteName, note.getNoteName());
-        return noteMapper.exists(NOTE_LAMBDA_QUERY_WRAPPER);
-    }
 
     @Override
     @Cacheable(key = "#id + '-' + #type")
     public List<Note> getAll(Integer id, String type) {
-
-        LambdaQueryWrapper<Note> queryWrapper = NOTE_LAMBDA_QUERY_WRAPPER.eq(Note::getUserId, id)
+        return this.lambdaQuery().eq(Note::getUserId, id)
                 .eq(
-                        Note::getTypeId, noteTypeMapper.selectOne(
-                                NOTE_TYPE_LAMBDA_QUERY_WRAPPER.eq(NoteType::getType, type)
-                        ).getId()
-                );
+                        Note::getTypeId,
+                        noteTypeService.lambdaQuery()
+                                .eq(NoteType::getType, type)
+                                .one()
+                                .getId()
+                ).list();
+    }
 
 
-        return noteMapper.selectList(queryWrapper);
+    /**
+     * 检查名字是否重复
+     *
+     * @param note 笔记实例
+     * @return 是否存在
+     */
+    @Override
+    public boolean noteNameExists(Note note) {
+        return this.lambdaQuery()
+                .eq(Note::getUserId, note.getUserId())
+                .eq(Note::getNoteName, note.getNoteName())
+                .eq(Note::getTypeId, note.getTypeId())
+                .exists();
     }
 
     @Override
     public boolean noteTextExists(Note note) {
-
-        NOTE_LAMBDA_QUERY_WRAPPER.eq(Note::getUserId, note.getUserId()).eq(Note::getNoteName, note.getNoteName()).eq(Note::getTypeId, note.getTypeId());
-        return noteMapper.exists(NOTE_LAMBDA_QUERY_WRAPPER);
+        return this.lambdaQuery()
+                .eq(Note::getUserId, note.getUserId())
+                .eq(Note::getNoteText, note.getNoteText())
+                .eq(Note::getTypeId, note.getTypeId()).exists();
     }
 
     @Override
-    @Cacheable(key = "#note")
-    public Integer getNoteId(Note note) {
-
-        NOTE_LAMBDA_QUERY_WRAPPER.eq(Note::getUserId, note.getUserId()).eq(Note::getNoteName, note.getNoteName()).eq(Note::getTypeId, note.getTypeId());
-        return noteMapper.selectOne(NOTE_LAMBDA_QUERY_WRAPPER).getId();
+    public Integer getNoteId(Note note, String name) {
+        LambdaQueryChainWrapper<Note> noteLambdaQueryChainWrapper = this.lambdaQuery()
+                .eq(Note::getTypeId, note.getTypeId())
+                .eq(Note::getUserId, note.getUserId());
+        if (Objects.equals(name, "name")) {
+            noteLambdaQueryChainWrapper.eq(Note::getNoteName, note.getNoteName());
+        } else {
+            noteLambdaQueryChainWrapper.eq(Note::getNoteText, note.getNoteText());
+        }
+        return noteLambdaQueryChainWrapper.one().getId();
     }
 
     @Override
@@ -96,7 +105,7 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
             assert originalFilename != null;
 
             String title = originalFilename.substring(0, originalFilename.lastIndexOf("."));
-            int typeId = noteTypeService.getTypeId(type);
+            Integer typeId = noteTypeService.getTypeId(type);
 
             File fz = FileUtil.convertMultipartFileToFile(multipartFile);
             String text = FileUtil.convertMarkdownFileToString(fz);
@@ -104,12 +113,16 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
             Note note = Note.builder().noteName(title).noteText(text).userId(userId).typeId(typeId).build();
 
 
-            if (!noteExists(note)) {
+            boolean nameExists = noteNameExists(note);
+            boolean noteTextExists = noteTextExists(note);
+
+            if (!nameExists && !noteTextExists) {
                 note.setCreateTime(TimeUtil.now());
                 note.setUpdateTime(TimeUtil.now());
                 save(note);
-            } else if (!noteTextExists(note)) {
-                note.setId(getNoteId(note));
+            } else if (nameExists ^ noteTextExists) { // 有一个为true更新
+                Integer noteId = getNoteId(note, nameExists ? "name" : "text");
+                note.setId(noteId);
                 note.setUpdateTime(TimeUtil.now());
                 updateById(note);
             }
@@ -122,4 +135,6 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
     public void deleteNote(Integer id, String type) {
         noteMapper.deleteById(id);
     }
+
+
 }

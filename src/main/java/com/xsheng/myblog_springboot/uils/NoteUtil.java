@@ -1,6 +1,6 @@
 package com.xsheng.myblog_springboot.uils;
 
-import com.xsheng.myblog_springboot.Comment.DangerousException;
+import com.xsheng.myblog_springboot.config.DangerousException;
 import com.xsheng.myblog_springboot.entity.NoteType;
 
 import java.util.Objects;
