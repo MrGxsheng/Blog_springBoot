@@ -1,7 +1,5 @@
 package com.xsheng.myblog_springboot.uils;
 
-import com.xsheng.myblog_springboot.Comment.DangerousException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
