@@ -1,4 +1,4 @@
-package com.xsheng.myblog_springboot.Comment;
+package com.xsheng.myblog_springboot.config;
 
 /**
  * <p>
