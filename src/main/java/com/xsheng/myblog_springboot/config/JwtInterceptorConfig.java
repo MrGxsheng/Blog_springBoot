@@ -29,7 +29,8 @@ public class JwtInterceptorConfig implements WebMvcConfigurer {
                             "/user/shutdown", // 关机接口
                             "/user/test", // 测试接口
                             "/user/login", // 用户登录 *
-                            "/user", // 用户注册 *
+                            "/user/reg", // 用户注册 *
+                            "/user", //检查账户是否存在
                             "/blog/*/blogs", // 博客s
                             "/blog/*/blog/*", // 博客
                             "/img/*/banner", // 主页banner

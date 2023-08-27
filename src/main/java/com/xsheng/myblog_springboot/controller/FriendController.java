@@ -1,11 +1,8 @@
 package com.xsheng.myblog_springboot.controller;
 
-import cn.hutool.extra.spring.SpringUtil;
-import com.sun.org.apache.regexp.internal.RE;
 import com.xsheng.myblog_springboot.Comment.Result;
 import com.xsheng.myblog_springboot.entity.Friend;
 import com.xsheng.myblog_springboot.service.IFriendService;
-import com.xsheng.myblog_springboot.uils.FileUtil;
 import com.xsheng.myblog_springboot.uils.OssUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
