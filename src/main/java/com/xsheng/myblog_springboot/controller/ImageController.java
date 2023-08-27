@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 
 /**
  * <p>
@@ -24,16 +27,20 @@ public class ImageController {
 
     @PostMapping("/upload/{userId}")
     public Result addImg(@RequestPart("file") MultipartFile[] file,
-                         @PathVariable("userId") Integer userId) {
-
+                         @PathVariable("userId") Integer userId) throws IOException, NoSuchAlgorithmException {
         imageService.addImage(file, userId);
         return Result.success();
     }
 
     @GetMapping("/allImg")
     public Result allImg(@RequestParam Integer userId) {
-
         return Result.success(imageService.getAllImage(userId));
+    }
+
+    @GetMapping("/randomImg")
+    public Result randomImg(@RequestParam Integer userId,
+                            @RequestParam Integer count){
+        return Result.success(imageService.getRandomImg(userId,count));
     }
 
 

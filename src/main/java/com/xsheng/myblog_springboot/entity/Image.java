@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -34,6 +35,11 @@ public class Image implements Serializable {
     private String imgName;
 
     private String imgPath;
+
+    private String reducePath;
+
+    @JsonIgnore
+    private String md5;
 
     private LocalDateTime uploadTime;
 
