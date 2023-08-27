@@ -53,6 +53,6 @@ public class Md5Util {
         File jFile = new File(path);
         String md5 = md5(jFile);
 
-        return FileUtil.fileExists(md5);
+        return FileUtil.fileExistsByMd5(md5);
     }
 }
