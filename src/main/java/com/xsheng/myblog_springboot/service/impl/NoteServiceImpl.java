@@ -1,6 +1,8 @@
 package com.xsheng.myblog_springboot.service.impl;
 
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.xsheng.myblog_springboot.dao.BlogDao;
+import com.xsheng.myblog_springboot.entity.Image;
 import com.xsheng.myblog_springboot.entity.Note;
 import com.xsheng.myblog_springboot.entity.NoteType;
 import com.xsheng.myblog_springboot.mapper.NoteMapper;
@@ -20,6 +22,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,21 +46,16 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
     @Resource
     private NoteTypeServiceImpl noteTypeService;
 
-    @Resource
-    private NoteTypeMapper noteTypeMapper;
 
+    @Resource
+    private ImageServiceImpl imageService;
 
     @Override
-    @Cacheable(key = "#id + '-' + #type")
-    public List<Note> getAll(Integer id, String type) {
-        return this.lambdaQuery().eq(Note::getUserId, id)
-                .eq(
-                        Note::getTypeId,
-                        noteTypeService.lambdaQuery()
-                                .eq(NoteType::getType, type)
-                                .one()
-                                .getId()
-                ).list();
+    @Cacheable(key = "#userId + '-' + #type")
+    public List<Note> getAll(Integer userId, String type) {
+        return this.lambdaQuery().eq(Note::getUserId, userId)
+                .eq(Note::getTypeId, noteTypeService.getTypeId(type))
+                .list();
     }
 
 
@@ -134,6 +132,30 @@ public class NoteServiceImpl extends ServiceImpl<NoteMapper, Note> implements IN
     @CacheEvict(allEntries = true)
     public void deleteNote(Integer id, String type) {
         noteMapper.deleteById(id);
+    }
+
+    @Override
+    public List<BlogDao> showBlog(Integer userId, String type) {
+        List<BlogDao> list = new ArrayList<>();
+        List<Note> allNote = this.getAll(userId, type);
+        List<Image> randomImg = imageService.getRandomImg(userId, allNote.size());
+        for (int i = 0; i < allNote.size(); i++) {
+            Note note = allNote.get(i);
+            Image img = randomImg.get(i);
+
+            list.add(BlogDao.builder()
+                    .id(note.getId())
+                    .createTime(note.getCreateTime())
+                    .updateTime(note.getUpdateTime())
+                    .noteName(note.getNoteName())
+                    .noteText(note.getNoteText())
+                    .type(type)
+                    .imgName(img.getImgName())
+                    .imgPath(img.getImgPath())
+                    .reducePath(img.getReducePath())
+                    .build());
+        }
+        return list;
     }
 
 

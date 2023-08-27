@@ -4,8 +4,10 @@ import com.xsheng.myblog_springboot.Comment.Result;
 import com.xsheng.myblog_springboot.dao.NoteDao;
 import com.xsheng.myblog_springboot.entity.Note;
 import com.xsheng.myblog_springboot.entity.NoteType;
+import com.xsheng.myblog_springboot.service.IImageService;
 import com.xsheng.myblog_springboot.service.INoteService;
 import com.xsheng.myblog_springboot.service.INoteTypeService;
+import com.xsheng.myblog_springboot.service.impl.NoteTypeServiceImpl;
 import com.xsheng.myblog_springboot.uils.MybatisPlusUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +31,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class NoteController {
+
     private final INoteService noteService;
     private final INoteTypeService noteTypeService;
-
+    private final IImageService imageService;
 
 
     @PostMapping("/upload/{type}/{userId}")
@@ -58,7 +61,14 @@ public class NoteController {
                 .last(MybatisPlusUtil.getLimitString(currentPage, pageSize))
                 .list()
                 .stream()
-                .map(val -> NoteDao.builder().id(userId).type(noteTypeService.getTypeById(val.getTypeId())).noteName(val.getNoteName()).updateTime(val.getUpdateTime()).createTime(val.getCreateTime()).build())
+                .map(val ->
+                        NoteDao.builder()
+                                .id(userId)
+                                .type(noteTypeService.getTypeById(val.getTypeId()))
+                                .noteName(val.getNoteName())
+                                .updateTime(val.getUpdateTime())
+                                .createTime(val.getCreateTime())
+                                .build())
                 .collect(Collectors.toList());
 
         return Result.success(collect, count);
@@ -83,6 +93,12 @@ public class NoteController {
         noteService.deleteNote(id, type);
 
         return Result.success();
+    }
+
+    @GetMapping("/showBlog")
+    public Result showBlog(@RequestParam Integer userId,
+                           @RequestParam String type){
+        return Result.success(noteService.showBlog(userId,type));
     }
 
 
