@@ -19,13 +19,13 @@ import java.io.InputStream;
  */
 public class OssUtil {
     // oss 所在域
-    public static String endpint = "https://oss-cn-beijing.aliyuncs.com/";
+    public static String endpint = "别看了";
     // 密钥
-    public static String accessKetId = "LTAI5tSRF293qMBMh4Wo7tWk";
+    public static String accessKetId = "别看了";
     // 密钥
-    public static String accessKeySecret = "m7AMYmaTOrQbANujmvvlOIHY8QcrTe";
+    public static String accessKeySecret = "别看了";
     // oss对象
-    public static String bucket = "hasdsd-markdown";
+    public static String bucket = "别看了";
 
     private final static String save_context_path = "img/";
     public static String copyEndpint = "oss-cn-beijing.aliyuncs.com/";
