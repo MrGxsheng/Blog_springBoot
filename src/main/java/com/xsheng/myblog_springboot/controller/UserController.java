@@ -4,12 +4,16 @@ import cn.hutool.core.bean.BeanUtil;
 import com.xsheng.myblog_springboot.Comment.Result;
 import com.xsheng.myblog_springboot.entity.User;
 import com.xsheng.myblog_springboot.service.IUserService;
+import com.xsheng.myblog_springboot.uils.FileUtil;
 import com.xsheng.myblog_springboot.uils.JwtUtil;
 import com.xsheng.myblog_springboot.uils.TimeUtil;
 import com.xsheng.myblog_springboot.uils.UserUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +31,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class UserController {
     private final IUserService userService;
+
 
     //测试
     @GetMapping("/test")
@@ -53,6 +58,8 @@ public class UserController {
         user.setCreateTime(TimeUtil.now());
         String password = user.getPassword();
 
+        //todo 默认username == account
+        user.setUsername(user.getAccount());
         //加密的时候再用
         user.setPassword(UserUtil.encryptPassword(password));
         userService.save(user);
@@ -61,12 +68,24 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public Result update(@RequestBody Map<String,String> map){
-        User user = userService.getUserByAccount(map.get("account"));
-        UserUtil.verify(user, BeanUtil.mapToBean(map,User.class,false));
-
+    public Result update(@RequestParam Map<String,String> map){
+        User user = userService.getById(map.get("id"));
         userService.updateById(user);
         return Result.success();
+    }
+
+    /**
+     * 上传图片
+     * @param file 图片
+     * @param userId 用户id
+     * @return 路径
+     */
+    @PutMapping("/ModifyAvatar/{userId}")
+    private Result updateAvatar(@RequestPart("file") MultipartFile file,
+                                @PathVariable Integer userId) throws NoSuchAlgorithmException, IOException {
+        userService.updateAvatar(file, userId);
+        return Result.success();
+
     }
 
 
@@ -85,5 +104,7 @@ public class UserController {
 
         return map;
     }
+
+
 
 }
