@@ -53,6 +53,9 @@ public class FileUtil {
     // 支持压缩的类型
     private final String[] SUPPORT_TYPE = {".jpg", ".png", ".jpeg"};
 
+    // 匹配markdown中的本地url格式
+    private final static String pattern = "!\\[.*?\\]\\((.*?)\\)";
+
     @PostConstruct
     public void init() {
         fileUtil = this;
@@ -69,6 +72,8 @@ public class FileUtil {
         File file = new File(multipartFile.getOriginalFilename());
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(multipartFile.getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return file;
     }
@@ -79,7 +84,7 @@ public class FileUtil {
         try (BufferedReader br = new BufferedReader(new FileReader(markdownFile))) {
             String line;
             while ((line = br.readLine()) != null) {
-                contentBuilder.append(line).append("\n");
+                contentBuilder.append(textToUrl(line)).append("\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,8 +116,10 @@ public class FileUtil {
 
         // 上传
         String url = fileUtil.downloadPath + file.getOriginalFilename();
-        String path = fileUtil.uploadPath + file.getOriginalFilename();
+        String path = fileUtil.uploadPath  + file.getOriginalFilename();
         uploadToServer(file, path);
+        deleteServerFile(path);
+
 
         map.put("downloadPath", url);
         map.put("uploadPath", path);
@@ -131,22 +138,21 @@ public class FileUtil {
         Map<String, Object> map = new HashMap<>();
 
 
-        // 基本属性
-        // String uuid = IdUtil.uuid();
+        String uuid = IdUtil.uuid();
         String originalFilename = file.getOriginalFilename();
         assert originalFilename != null;
 
-        // 结尾加上类型
-//        String type = fileUtil.getType(originalFilename);
         String path;
         String url;
         String reduceUrl;
 
-        path = fileUtil.uploadPath + originalFilename;
-        url = fileUtil.downloadPath + originalFilename;
+        path = fileUtil.uploadPath + uuid + "-" + originalFilename;
+        url = fileUtil.downloadPath + uuid + "-" + originalFilename;
+
 
         // 上传到服务器
         uploadToServer(file, path);
+
         File jFile = new File(path);
         // 追加md5
         String md5 = Md5Util.md5(jFile);
@@ -169,6 +175,7 @@ public class FileUtil {
 
 
         } else {
+            deleteServerFile(path + ".jpg");
             map.put("msg", "图片已存在");
         }
 
@@ -188,6 +195,17 @@ public class FileUtil {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    /**
+     * 删除服务上的文件
+     * @author Master.Pan
+     * @return 布尔值
+     */
+    public static boolean deleteServerFile(String filePath){
+        File file = new File(filePath);
+        return  file.exists() && file.isFile() && file.delete();
+
     }
 
     /**
@@ -265,6 +283,34 @@ public class FileUtil {
     private boolean containsType(String type) {
         return Arrays.asList(SUPPORT_TYPE).contains(type);
     }
+
+
+    /**
+     * 将blog中的本地图片上传到服务器替换链接
+     * // todo 烂尾了 纯属傻逼了
+     * @param text 处理前的链接
+     * @return 处理好的链接
+     */
+    private static String textToUrl(String text) throws IOException {
+        // 不是图片类型 或者 开头是 http：// 或者 https:// 的 都不转换
+        if (!text.matches(pattern) || (text.contains("(http://") || text.contains("(https://"))) return text;
+
+        String start = text.substring(0, text.indexOf('(')); // 去掉右边括号
+        String originName = text.substring(text.lastIndexOf('\\') + 1, text.length() - 1);
+        //服务器路径
+        String cloudUrl = fileUtil.downloadPath + "blog/img/" + originName;
+
+        //本地链接
+        String localUrl = text.substring(text.indexOf('('), text.indexOf(')'));
+
+
+//        uploadToServer(, localUrl);
+//
+        text = start + '(' + cloudUrl + ')';
+
+        return text;
+    }
+
 
 
 }
