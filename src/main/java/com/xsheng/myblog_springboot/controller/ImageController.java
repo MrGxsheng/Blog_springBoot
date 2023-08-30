@@ -43,5 +43,10 @@ public class ImageController {
         return Result.success(imageService.getRandomImg(userId,count));
     }
 
+    @DeleteMapping("/deleteImg")
+    public Result deleteImg(@RequestParam Integer id){
+        return Result.success(imageService.removeById(id));
+    }
+
 
 }
