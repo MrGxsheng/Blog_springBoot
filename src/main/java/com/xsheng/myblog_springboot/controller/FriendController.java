@@ -3,11 +3,14 @@ package com.xsheng.myblog_springboot.controller;
 import com.xsheng.myblog_springboot.Comment.Result;
 import com.xsheng.myblog_springboot.entity.Friend;
 import com.xsheng.myblog_springboot.service.IFriendService;
+import com.xsheng.myblog_springboot.uils.FileUtil;
 import com.xsheng.myblog_springboot.uils.OssUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -46,8 +49,8 @@ public class FriendController {
                             @RequestParam Integer userId,
                             @RequestParam String description,
                             @RequestParam String url,
-                            @RequestParam MultipartFile avatar) {
-        String avaUrl = OssUtil.upload(avatar);
+                            @RequestParam MultipartFile avatar) throws NoSuchAlgorithmException, IOException {
+        String avaUrl = FileUtil.uploadImg(avatar,userId).get("url").toString();
         Friend friend = Friend.builder()
                 .name(name)
                 .description(description)
@@ -74,10 +77,10 @@ public class FriendController {
                          @RequestParam Integer userId,
                          @RequestParam String description,
                          @RequestParam String url,
-                         @RequestParam(required = false) MultipartFile avatar){
+                         @RequestParam(required = false) MultipartFile avatar) throws NoSuchAlgorithmException, IOException {
         Friend build = null;
         if(avatar != null){
-            String avaUrl = OssUtil.upload(avatar);
+            String avaUrl = FileUtil.uploadImg(avatar,userId).get("url").toString();
             build = Friend.builder().id(friendId.longValue()).name(name).userId(userId).description(description).url(url).avatar(avaUrl).build();
 
         }else{
