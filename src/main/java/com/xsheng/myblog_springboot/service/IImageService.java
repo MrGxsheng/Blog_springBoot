@@ -23,4 +23,5 @@ public interface IImageService extends IService<Image> {
     Dict getAllImage(Integer userId);
     List<Image> getImgByMd5(String md5);
     List<Image> getRandomImg(Integer userId,Integer count);
+    void deleteImg(Integer imgId);
 }

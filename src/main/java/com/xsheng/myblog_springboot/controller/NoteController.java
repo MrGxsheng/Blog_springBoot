@@ -1,6 +1,7 @@
 package com.xsheng.myblog_springboot.controller;
 
 import com.xsheng.myblog_springboot.Comment.Result;
+import com.xsheng.myblog_springboot.annotation.MyLog;
 import com.xsheng.myblog_springboot.dao.NoteDao;
 import com.xsheng.myblog_springboot.entity.Note;
 import com.xsheng.myblog_springboot.entity.NoteType;
@@ -74,14 +75,10 @@ public class NoteController {
         return Result.success(collect, count);
     }
 
+    @MyLog(title = "博客模块",content = "获取全部博客")
     @GetMapping("/blog")
     public Result AllBlog(@RequestParam("userId") Integer userId,
                           @RequestParam("type") String type) {
-
-//        List<Note> list = noteService.lambdaQuery()
-//                .eq(Note::getUserId, userId)
-//                .eq(Note::getTypeId, noteTypeService.getTypeId(type))
-//                .list();
 
         return Result.success(noteService.getAll(userId, type));
     }
@@ -95,6 +92,7 @@ public class NoteController {
         return Result.success();
     }
 
+    @MyLog(title = "博客模块",content = "首页展示")
     @GetMapping("/showBlog")
     public Result showBlog(@RequestParam Integer userId,
                            @RequestParam String type){

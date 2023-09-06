@@ -38,6 +38,9 @@ import java.util.Map;
 public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements IImageService {
 
 
+
+
+
     @Resource
     private ImageMapper imageMapper;
 
@@ -90,4 +93,12 @@ public class ImageServiceImpl extends ServiceImpl<ImageMapper, Image> implements
         randomNumberList.forEach(num -> RandomImg.add((Image) ((List<?>) list).get(num)));
         return RandomImg;
     }
+
+    @Override
+    @CacheEvict(allEntries = true)
+    public void deleteImg(Integer imgId) {
+        this.removeById(imgId);
+    }
+
+
 }

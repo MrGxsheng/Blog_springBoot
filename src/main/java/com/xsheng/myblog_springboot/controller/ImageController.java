@@ -45,7 +45,8 @@ public class ImageController {
 
     @DeleteMapping("/deleteImg")
     public Result deleteImg(@RequestParam Integer id){
-        return Result.success(imageService.removeById(id));
+        imageService.deleteImg(id);
+        return Result.success();
     }
 
 

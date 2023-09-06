@@ -39,7 +39,7 @@ public class IdUtil {
         return Integer.parseInt(JwtUtil.getAudience(token));
     }
 
-    // 获取username
+    // 获取account
     public static String getUserAccount(HttpServletRequest request) {
         return JwtUtil.getClaimByAccount(request.getHeader("token"), "account").asString();
     }
