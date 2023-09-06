@@ -101,7 +101,7 @@ public class FileUtil {
     }
 
     // 文件上传
-    public static Map<String, String> fileUpload(MultipartFile file) {
+    public static Map<String, String> fileUpload(MultipartFile file) throws IOException {
         // 初始化
         HashMap<String, String> map = new HashMap<>();
 
@@ -116,11 +116,17 @@ public class FileUtil {
 
         // 上传
         String url = fileUtil.downloadPath + file.getOriginalFilename();
-        String path = fileUtil.uploadPath  + file.getOriginalFilename();
+        String path = fileUtil.uploadPath + file.getOriginalFilename();
+
         uploadToServer(file, path);
-        deleteServerFile(path);
+        java.io.File file1 = convertMultipartFileToFile(file);
+        String md = Md5Util.md5(file1);
+        boolean exists = FileUtil.fileExistsByMd5(md);
 
-
+        if(exists){
+            map.put("error","别传了，再传都给你删了");
+        }
+        map.put("md5",md);
         map.put("downloadPath", url);
         map.put("uploadPath", path);
         map.put("name", name);
@@ -149,7 +155,7 @@ public class FileUtil {
         path = fileUtil.uploadPath + uuid + "-" + originalFilename;
         url = fileUtil.downloadPath + uuid + "-" + originalFilename;
 
-
+        map.put("url",path);
         // 上传到服务器
         uploadToServer(file, path);
 
