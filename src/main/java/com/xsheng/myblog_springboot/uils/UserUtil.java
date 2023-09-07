@@ -4,6 +4,7 @@ import com.xsheng.myblog_springboot.config.DangerousException;
 import com.xsheng.myblog_springboot.entity.User;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**
@@ -30,9 +31,9 @@ public class UserUtil {
         return rawPassword.equals(encodedPassword);
     }
 
-    public static void verify(User user , User userR ){
+    public static void verify(User user , User userR , HttpServletRequest request){
         if(!Objects.equals(user.getPassword(), userR.getPassword())){
-            throw  new DangerousException("498", "用户名或密码错误", Math.toIntExact(userR.getId()));
+            throw  new DangerousException("498", "用户名或密码错误", request, Math.toIntExact(userR.getId()));
         }
     }
 

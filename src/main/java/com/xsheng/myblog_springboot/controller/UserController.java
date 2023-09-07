@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -41,8 +42,8 @@ public class UserController {
 
     //登录
     @PostMapping("/login")
-    public Result login(@RequestBody User user) throws NoSuchAlgorithmException {
-        return Result.success(loginR(user));
+    public Result login(@RequestBody User user, HttpServletRequest request) throws NoSuchAlgorithmException {
+        return Result.success(loginR(user,request));
     }
 
     // 检测账号是否存在
@@ -54,7 +55,7 @@ public class UserController {
 
     //注册
     @PostMapping("/reg")
-    public Result register(@RequestBody User user) throws NoSuchAlgorithmException {
+    public Result register(@RequestBody User user,HttpServletRequest request) throws NoSuchAlgorithmException {
         user.setCreateTime(TimeUtil.now());
         String password = user.getPassword();
 
@@ -64,7 +65,7 @@ public class UserController {
         user.setPassword(UserUtil.encryptPassword(password));
         userService.save(user);
 
-        return Result.success(loginR(user));
+        return Result.success(loginR(user,request));
     }
 
     @PutMapping("/update")
@@ -89,11 +90,11 @@ public class UserController {
     }
 
 
-    private Map<String,Object> loginR(User user) throws NoSuchAlgorithmException {
+    private Map<String,Object> loginR(User user,HttpServletRequest request) throws NoSuchAlgorithmException {
         Map<String,Object> map = new HashMap<>();
         String account = user.getAccount();
         User userR = userService.getUserByAccount(account);
-        UserUtil.verify(user,userR);
+        UserUtil.verify(user,userR,request);
 
         String token = JwtUtil.createToken(userR.getId().toString(),userR.getAccount(),userR.getPassword());
 
