@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Getter
 @Setter
-public class DangerousException extends RuntimeException {
+public class DangerousException extends RuntimeException{
 
     private String code;
     private String ip;
