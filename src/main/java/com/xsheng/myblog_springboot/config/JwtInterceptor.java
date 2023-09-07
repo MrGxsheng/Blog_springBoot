@@ -7,6 +7,7 @@ import com.xsheng.myblog_springboot.uils.IdUtil;
 import com.xsheng.myblog_springboot.uils.JwtUtil;
 import com.xsheng.myblog_springboot.uils.StrUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,10 +31,6 @@ import java.util.Objects;
 @Component
 @Slf4j
 public class JwtInterceptor implements HandlerInterceptor {
-
-
-    @Resource
-    private UserMapper userMapper;
 
     @Resource
     private IUserService userService;
