@@ -155,7 +155,7 @@ public class FileUtil {
         path = fileUtil.uploadPath + uuid + "-" + originalFilename;
         url = fileUtil.downloadPath + uuid + "-" + originalFilename;
 
-        map.put("url",path);
+        map.put("url",url);
         // 上传到服务器
         uploadToServer(file, path);
 
