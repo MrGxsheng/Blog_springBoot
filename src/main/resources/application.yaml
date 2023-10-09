@@ -4,7 +4,7 @@ spring:
 #    url: jdbc:mysql://localhost:3306/my_blog?useSSL=true&useUnicode=true&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: 1234
+    password: root
     hikari:
       connection-test-query: SELECT 1 FROM DUAL
       connection-timeout: 233333
@@ -16,15 +16,32 @@ spring:
 
   mvc:
     static-path-pattern: ${my.file-config.staticPath}** # 静态资源访问
+
   web:
     resources:
       static-locations: file:${my.file-config.uploadPath}
+
+  servlet:
+    multipart:
+      max-file-size: 100MB # 设置单个文件最大大小为100MB
+      max-request-size: 1000MB # 设置多个文件大小为1000MB
+
 my:
   server: # 上传到服务器需要改这个
-    name: https://sdadgz.cn
+    name: http://8.130.26.187
     uploadPath: '/usr/local/springboot/static/' # 文件下载到哪里，记得屁股加个杠
     localhostIp: '85.230.0.1'
   file-config:
     uploadPath: '${my.server.uploadPath}'
     staticPath: '/static/' # 访问前缀，不是物理地址
     downloadPath: '${my.file-config.staticPath}' # 存url到数据库时用的
+
+# 配置slq打印日志
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api #url前缀
